@@ -2,12 +2,11 @@ const path = require('path');
 const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+module.exports = (_env, argv) => ({
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js',
-        chunkFilename: '[id].js',
+        filename: argv.mode === 'production' ? `[name].[contentHash].js` : `[name].[hash].js`,
         publicPath: ''
     },
     resolve: {
@@ -57,5 +56,18 @@ module.exports = {
             filename: 'index.html',
             inject: 'body'
         })
-    ]
-};
+    ],
+    optimization: {
+        runtimeChunk: 'single',
+        moduleIds: 'hashed',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
+    }
+});
